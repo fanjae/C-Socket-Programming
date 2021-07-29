@@ -1,0 +1,4 @@
+﻿  Hello_client_win.cpp
+c:\users\fanjae\documents\github\c-socket-programming\hello_client_window\hello_client_win\hello_client_win\hello_client_win.cpp(37): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\um\winsock2.h(1831): note: 'inet_addr' 선언을 참조하십시오.
+  Hello_client_win.vcxproj -> C:\Users\fanjae\Documents\GitHub\C-Socket-Programming\Hello_client_window\Hello_client_win\Debug\Hello_client_win.exe
