@@ -1,6 +1,3 @@
-User : Fanjae
-BOJ 연습.
-알고리즘 문제 풀이.
+도메인 이름을 이용해서 IP주소를 얻어오는 프로그램
 
-https://www.acmicpc.net/user/fanjae
-
+실행방법 : 명령 인수에 도메인 이름 입력.
