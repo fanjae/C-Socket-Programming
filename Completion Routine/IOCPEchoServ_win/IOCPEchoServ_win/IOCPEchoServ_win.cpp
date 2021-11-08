@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 	GetSystemInfo(&sysInfo);
 	for (i = 0; i < sysInfo.dwNumberOfProcessors; i++)
 	{
-		_beginthreadex(NULL, 0, (_beginthreadex_proc_type) EchoThreadMain, (LPVOID)hComPort, 0, NULL);
+		_beginthreadex(NULL, 0, (_beginthreadex_proc_type)EchoThreadMain, (LPVOID)hComPort, 0, NULL);
 	}
 
 	hServSock = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
@@ -80,4 +80,57 @@ int main(int argc, char *argv[])
 		WSARecv(handleInfo->hClntSock, &(ioInfo->wsaBuf), 1, (LPDWORD) &recvBytes, (LPDWORD) &flags, &(ioInfo->overlapped), NULL);
 	}
 	return 0;
+}
+
+
+DWORD WINAPI EchoThreadMain(LPVOID pComPort)
+{
+	HANDLE hComPort = (HANDLE)pComPort;
+	SOCKET sock;
+	DWORD bytesTrans;
+	LPPER_HANDLE_DATA handleInfo;
+	LPPER_IO_DATA ioInfo;
+	DWORD flags = 0;
+
+	while (1)
+	{
+		GetQueuedCompletionStatus(hComPort, &bytesTrans, (LPDWORD)&handleInfo, (LPOVERLAPPED*)&ioInfo, INFINITE);
+		sock = handleInfo->hClntSock;
+
+		if (ioInfo->rwMode == READ)
+		{
+			puts("message received!");
+			if (bytesTrans == 0)
+			{
+				closesocket(sock);
+				free(handleInfo);
+				free(ioInfo);
+				continue;
+			}
+
+			memset(&(ioInfo->overlapped), 0, sizeof(OVERLAPPED));
+			ioInfo->wsaBuf.len = bytesTrans;
+			ioInfo->rwMode = WRITE;
+			WSASend(sock, &(ioInfo->wsaBuf), 1, NULL, 0, &(ioInfo->overlapped), NULL);
+
+			ioInfo = (LPPER_IO_DATA)malloc(sizeof(PER_IO_DATA));
+			memset(&(ioInfo->overlapped), 0, sizeof(OVERLAPPED));
+			ioInfo->wsaBuf.len = BUF_SIZE;
+			ioInfo->wsaBuf.buf = ioInfo->buffer;
+			ioInfo->rwMode = READ;
+			WSARecv(sock, &(ioInfo->wsaBuf), 1, NULL, &flags, &(ioInfo->overlapped), NULL);
+		}
+		else
+		{
+			puts("message sent!");
+			free(ioInfo);
+		}
+	}
+	return 0;
+}
+void ErrorHandling(const char *message)
+{
+	fputs(message, stderr);
+	fputc('\n', stderr);
+	exit(1);
 }
