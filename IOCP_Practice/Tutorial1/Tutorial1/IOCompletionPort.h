@@ -42,5 +42,38 @@ struct stClientInfo
 
 class IOCompletionPort
 {
+public:
+	IOCompletionPort(void) {}
 
+	~IOCompletionPort(void)
+	{
+		// 사용을 끝냄
+		WSACleanup();
+	}
+
+	// 소켓 초기화 함수
+	bool InitSocket()
+	{
+		WSADATA wsaData;
+
+		int nRet = WSAStartup(MAKEWORD(2, 2), &wsaData);
+		if (nRet != 0)
+		{
+			printf("Error : WSAStartup() Error : %d\n", WSAGetLastError());
+			return false;
+		}
+
+		// 연결지향형 TCP, Overlapped I/O Socket 생성
+		mListenSocket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, NULL, WSA_FLAG_OVERLAPPED);
+
+		if (INVALID_SOCKET == mListenSocket)
+		{
+			printf("Error : socket() Error : %d\n", WSAGetLastError());
+			return false;
+		}
+		printf("소켓 초기화 성공\n");
+		return true;
+	}
 }
+std::vector<stClientInfo> mClientInfos;
+SOCKET mListenSocket = INVALID_SOCKET;
