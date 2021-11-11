@@ -150,8 +150,29 @@ public:
 			}
 		}
 
+		//Accepter 쓰레드를 종료함.
+		mIsAccepterRun = false;
+		closesocket(mListenSocket);
+
+		if (mAccepterThread.joinable())
+		{
+			mAccepterThread.join();
+		}
+	}
+private:
+	void Createclient(const UINT32 maxClientCount)
+	{
+		for (UINT32 i = 0; i < maxClientCount; i++)
+		{
+			mClientInfos.emplace_back();
+		}
 	}
 
+	// WatingThread Queue에서 대기할 쓰레드 생성
+	bool CreateWorkerThread()
+	{
+
+	}
 	// 클라이언트 정보를 저장할 구조체 
 	std::vector<stClientInfo> mClientInfos;
 
