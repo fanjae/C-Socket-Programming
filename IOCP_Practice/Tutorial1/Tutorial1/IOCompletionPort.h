@@ -204,6 +204,22 @@ private:
 		}
 		return nullptr;
 	}
+
+	// CompletionPort 객체와 소켓과 CompletionKey를 연결시키는 역할
+	bool BindIOCompletionPort(stClientInfo* pClientInfo)
+	{
+		// socket과 pClientInfo를 CompletionPort 객체와 연결시킨다.
+		auto hIOCP = CreateIoCompletionPort((HANDLE)pClientInfo->m_socketClient, mIOCPHandle, (ULONG_PTR)(pClientInfo), 0);
+		if (hIOCP == NULL || mIOCPHandle != hIOCP)
+		{
+			printf("Error : CreateIoCompletionPort() : %d\n", GetLastError());
+		}
+		return true;
+	}
+
+	// WSARecv Overlapped I/O 작업 
+	// bool BindRecv(stClientInfo *pClientInfo)
+
 	// 클라이언트 정보를 저장할 구조체 
 	std::vector<stClientInfo> mClientInfos;
 
