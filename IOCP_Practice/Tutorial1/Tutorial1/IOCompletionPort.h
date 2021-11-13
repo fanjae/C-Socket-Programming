@@ -183,7 +183,27 @@ private:
 		return true;
 	}
 
-	
+	//accept 요청을 처리하는 Thread 생성
+	bool CreateAccepterThread()
+	{
+		mAccepterThread = std::thread([this]() { AccepterThread(); });
+
+		printf("AccepterThread 시작..\n");
+		return true;
+	}
+
+	// 사용하지 않는 클라이언트 정보 구조체를 반환한다.
+	stClientInfo* GetEmptyClientInfo()
+	{
+		for (auto& client : mClientInfos)
+		{
+			if (INVALID_SOCKET == client.m_socketClient)
+			{
+				return &client;
+			}
+		}
+		return nullptr;
+	}
 	// 클라이언트 정보를 저장할 구조체 
 	std::vector<stClientInfo> mClientInfos;
 
