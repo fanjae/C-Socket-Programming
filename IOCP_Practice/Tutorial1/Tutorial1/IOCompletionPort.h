@@ -171,8 +171,19 @@ private:
 	// WatingThread Queue에서 대기할 쓰레드 생성
 	bool CreateWorkerThread()
 	{
-
+		unsigned int uiThreadId = 0;
+		// WaitingThread Queue에 대기 상태로 넣을 쓰레드들 생성 권장되는 개수 : (cpu 개수 * 2) + 1
+		for (int i = 0; i < MAX_WORKERTHREAD; i++)
+		{
+			mIOWorkerThreads.emplace_back([this]() {
+				WokerThread();
+			});
+		}
+		printf("WorkerThread 시작..\n");
+		return true;
 	}
+
+	
 	// 클라이언트 정보를 저장할 구조체 
 	std::vector<stClientInfo> mClientInfos;
 
