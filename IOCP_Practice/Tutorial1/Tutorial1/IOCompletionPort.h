@@ -262,7 +262,78 @@ private:
 		return true;
 	}
 
-	
+	// Overlapped I/O 작업에 대한 완료 통보를 받아 그에 해당하는 처리를 하는 함수
+	void WorkerThread()
+	{
+		// CompletionKey를 받을 포인터 변수
+		stClientInfo* pClientInfo = NULL;
+		// 함수 호출 성공 여부
+		BOOL bSuccess = TRUE;
+		// Overlapped I/O 작업에서 전송된 데이터 크기
+		DWORD dwIoSize = 0;
+		// I/O 작업을 위해 요청한 Overlapped 구조체를 받을 포인터
+		LPOVERLAPPED lpOverlapped = NULL;
+
+		while (mIsWorkerRun)
+		{
+			/*
+				이 함수로 인해 Thread들은 WaitinngThread Queue에
+				대기 상태로 들어가게 된다.
+				완료된 Overlapped I/O 작업이 발생하면 IOCP Queue에서
+				완료된 작업을 가져와 뒤를 처리한다.
+				그리고 PostQueueCompletionStatus() 함수에 의해서 사용자 메시지가 도착되면 쓰레드를 종료한다.
+			*/
+
+			bSuccess = GetQueuedCompletionStatus(mIOCPHandle, &dwIoSize, (PULONG_PTR)&pClientInfo, &lpOverlapped, INFINITE);
+			// dwIOSize : 실제 전송된 바이트
+			// pClientInfo : CompletionKey
+			// lpOverlapped : Overlapped IO 객체
+			// INFINITE : 대기할 시간
+
+			if (bSuccess == TRUE && dwIoSize == 0 && lpOverlapped == NULL)
+			{
+				mIsWorkerRun = false;
+				continue;
+			}
+			if (lpOverlapped == NULL)
+			{
+				continue;
+			}
+
+			// Client가 접속을 끊었을 때
+			if (bSuccess == FALSE || (dwIoSize == 0 && bSuccess == TRUE))
+			{
+				printf("Socket(%d) 접속 끊김\n", (int)pClientInfo->m_socketClient);
+				CloseSocket(pClientInfo);
+				continue;
+			}
+
+			stOverlappedEx *pOverlappedEx = (stOverlappedEx*)lpOverlapped;
+
+			// Overlapped I/O Recv 작업 결과 뒤 처리
+			if (IOOperation::RECV == pOverlappedEx->m_eOperation)
+			{
+				pOverlappedEx->m_szBuf[dwIoSize] = NULL;
+				printf("[수신] bytes : %d, msg : %s\n", dwIoSize, pOverlappedEx->m_szBuf);
+
+				// Client 메시지를 에코한다.
+				SendMsg(pClientInfo, pOverlappedEx->m_szBuf, dwIoSize);
+				BindRecv(pClientInfo);
+			}
+
+			// Overlapped I/O Send 작업 결과 뒤 처리
+			else if (IOOperation::SEND == pOverlappedEx->m_eOperation)
+			{
+				printf("[송신] bytes : %d, msg : %s\n", dwIoSize, pOverlappedEx->m_szBuf);
+			}
+			// 예외 처리
+			else
+			{
+				printf("socket(%d) 예외 상황\n", (int)pClientInfo->m_socketClient);
+			}
+		}
+	}
+
 
 
 
