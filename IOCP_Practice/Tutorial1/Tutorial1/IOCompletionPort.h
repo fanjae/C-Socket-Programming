@@ -218,7 +218,28 @@ private:
 	}
 
 	// WSARecv Overlapped I/O 작업 
-	// bool BindRecv(stClientInfo *pClientInfo)
+	bool BindRecv(stClientInfo *pClientInfo)
+	{
+		DWORD dwFlag = 0;
+		DWORD dwRecvNumBytes = 0;
+
+		// Overlapped I/O를 위한 정보 셋팅
+		pClientInfo->m_stRecvOverlappedEx.m_wsaBuf.len = MAX_SOCKBUF;
+		pClientInfo->m_stRecvOverlappedEx.m_wsaBuf.buf = pClientInfo->m_stRecvOverlappedEx.m_szBuf;
+		pClientInfo->m_stRecvOverlappedEx.m_eOperation = IOOperation::RECV;
+
+		int nRet = WSARecv(pClientInfo->m_socketClient, &(pClientInfo->m_stRecvOverlappedEx.m_wsaBuf), 1, &dwRecvNumBytes, &dwFlag, (LPWSAOVERLAPPED) &(pClientInfo->m_stRecvOverlappedEx), NULL);
+
+		// Socket_error이면 Client Socket이 끊어진걸로 처리.
+		if (nRet == SOCKET_ERROR && (WSAGetLastError() != ERROR_IO_PENDING))
+		{
+			printf("Error : WSARecv() : %d\n", WSAGetLastError());
+			return false;
+		}
+		return true;
+		
+	}
+
 
 	// 클라이언트 정보를 저장할 구조체 
 	std::vector<stClientInfo> mClientInfos;
