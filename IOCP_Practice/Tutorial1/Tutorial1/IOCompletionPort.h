@@ -30,7 +30,7 @@ struct stClientInfo
 {
 	SOCKET		  m_socketClient;  // Client와 연결되는 소켓
 	stOverlappedEx m_stRecvOverlappedEx; // RECV Overlapped I/O 작업을 위한 변수
-	stOverlappedEx m_stSendOVerlappedEx; // SEND Overlapped I/O 작업을 위한 변수
+	stOverlappedEx m_stSendOverlappedEx; // SEND Overlapped I/O 작업을 위한 변수
 
 	stClientInfo()
 	{
@@ -237,8 +237,33 @@ private:
 			return false;
 		}
 		return true;
-		
 	}
+
+	// WSASend Overlapped I/O 작업을 시킨다.
+	bool SendMsg(stClientInfo * pClientInfo, char* pMsg, int nLen)
+	{
+		DWORD dwRecvNumBytes = 0;
+
+		// 전송될 메시지를 복사
+		CopyMemory(pClientInfo->m_stSendOVerlappedEx.m_szBuf, pMsg, nLen);
+
+		// Overlapped I/O를 각 정보를 셋팅해 준다.
+		pClientInfo->m_stSendOverlappedEx.m_wsaBuf.len = nLen;
+		pClientInfo->m_stSendOverlappedEx.m_wsaBuf.buf = pClientInfo->m_stSendOverlappedEx.m_szBuf;
+		pClientInfo->m_stSendOverlappedEx.m_eOperation = IOOperation::SEND;
+
+		int nRet = WSASend(pClientInfo->m_socketClient, &(pClientInfo->m_stSendOverlappedEx.m_wsaBuf), 1, &dwRecvNumBytes, 0, (LPWSAOVERLAPPED) &(pClientInfo->m_stSendOverlappedEx), NULL);
+
+		if (nRet == SOCKET_ERROR && (WSAGetLastError() != ERROR_IO_PENDING))
+		{
+			printf("Error : WSASend() : %d\n", WSAGetLastError());
+			return false;
+		}
+		return true;
+	}
+
+	
+
 
 
 	// 클라이언트 정보를 저장할 구조체 
