@@ -351,7 +351,7 @@ private:
 			}
 
 			// Client 접속 요청이 들어올 때 까지를 기다린다.
-			pClientInfo->m_socketClient = accept(mListenSock, (SOCKADDR*)&stClientAddr, &nAddrLen);
+			pClientInfo->m_socketClient = accept(mListenSocket, (SOCKADDR*)&stClientAddr, &nAddrLen);
 			if (INVALID_SOCKET == pClientInfo->m_socketClient)
 			{
 				continue;
@@ -382,9 +382,28 @@ private:
 	}
 
 	// 소켓의 연결을 종료시킨다.
+	void CloseSocket(stClientInfo *pClientInfo, bool bIsForce = false)
+	{
+		struct linger stLinger = { 0, 0 }; // SO_DONTLINGER로 설정.
 
+		// bIsForce가 True이면 SO_LINGER, timeout = 0으로 설정하여 강제 종료시킨다. 단, 데이터 손실이 발생할 수 있다.
+		if (bIsForce == true)
+		{
+			stLinger.l_onoff = 1;
+		}
 
+		// socketClose소켓의 데이터 송수신을 모두 중단 시킨다.
+		shutdown(pClientInfo->m_socketClient, SD_BOTH);
 
+		// 소켓 옵션을 설정한다.
+		setsockopt(pClientInfo->m_socketClient, SOL_SOCKET, SO_LINGER, (char *)&stLinger, sizeof(stLinger));
+
+		// 소켓 연결을 종료시킨다.
+		closesocket(pClientInfo->m_socketClient);
+
+		pClientInfo->m_socketClient = INVALID_SOCKET;
+
+	}
 
 	// 클라이언트 정보를 저장할 구조체 
 	std::vector<stClientInfo> mClientInfos;
