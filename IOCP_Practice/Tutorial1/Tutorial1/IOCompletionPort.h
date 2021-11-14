@@ -334,6 +334,55 @@ private:
 		}
 	}
 
+	// 사용자의 접속을 받는 쓰레드
+	void AccepterThread()
+	{
+		SOCKADDR_IN		stClientAddr;
+		int nAddrLen = sizeof(SOCKADDR_IN);
+
+		while (mIsAccepterRun)
+		{
+			// 접속을 받을 구조체의 인덱스를 얻어온다.
+			stClientInfo *pClientInfo = GetEmptyClientInfo();
+			if (pClientInfo == NULL)
+			{
+				printf("Error : Client Full\n");
+				return;
+			}
+
+			// Client 접속 요청이 들어올 때 까지를 기다린다.
+			pClientInfo->m_socketClient = accept(mListenSock, (SOCKADDR*)&stClientAddr, &nAddrLen);
+			if (INVALID_SOCKET == pClientInfo->m_socketClient)
+			{
+				continue;
+			}
+
+			// I/O Completion 객체와 소켓을 연결시킨다.
+			bool bRet = BindIOCompletionPort(pClientInfo);
+			if (bRet == false)
+			{
+				return;
+			}
+
+			// Recv Overlapped I/O 작업을 요청해 놓는다.
+			bRet = BindRecv(pClientInfo);
+			if (bRet == false)
+			{
+				return ;
+			}
+
+			char clientIP[32] = { 0, };
+			inet_ntop(AF_INET, &(stClientAddr.sin_addr), clientIP, 32 - 1);
+			printf("Client 접속 : IP(%s) SOCKET(%d)\n", clientIP, (int)pClientInfo->m_socketClient);
+
+			// Client 갯수 증가
+			++mClientCnt;
+
+		}
+	}
+
+	// 소켓의 연결을 종료시킨다.
+
 
 
 
