@@ -23,3 +23,6 @@ const int WSAECONNRESET = ECONNRESET;
 const int WSAEWOULDBLOCK = EAGAIN;
 const int SOCKET_ERROR = -1;
 #endif
+
+#include "memory"
+using namespace std;

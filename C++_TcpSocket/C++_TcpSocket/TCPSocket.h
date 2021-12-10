@@ -1,6 +1,5 @@
-#include <memory>
-#include <iostream>
-using namespace std;
+#include "SharedHeader.h"
+
 class TCPSocket
 {
 public:
