@@ -26,5 +26,8 @@
     <ClInclude Include="SharedHeader.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="SocketAddress.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

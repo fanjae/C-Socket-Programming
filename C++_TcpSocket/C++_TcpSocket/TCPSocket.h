@@ -4,7 +4,7 @@ class TCPSocket
 {
 public:
 	~TCPSocket();
-	int Connect(const SocketAdress& inAddress);
+	int Connect(const SocketAddress& inAddress);
 	int Bind(const SocketAddress& inToAddress);
 	int Listen(int intBackLog = 32);
 	shared_ptr<TCPSocket> Accept(SocketAddress& inFromAddress);
