@@ -126,8 +126,10 @@
     <ClCompile Include="TCPSocketClass.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="RoboCatShared.h" />
     <ClInclude Include="SharedHeader.h" />
     <ClInclude Include="SocketAddress.h" />
+    <ClInclude Include="SocketUtil.h" />
     <ClInclude Include="TCPSocket.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

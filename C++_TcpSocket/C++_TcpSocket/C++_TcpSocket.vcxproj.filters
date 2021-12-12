@@ -29,5 +29,11 @@
     <ClInclude Include="SocketAddress.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="SocketUtil.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="RoboCatShared.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
