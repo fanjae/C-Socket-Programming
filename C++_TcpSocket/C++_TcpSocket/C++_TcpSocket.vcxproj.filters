@@ -35,5 +35,14 @@
     <ClInclude Include="RoboCatShared.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="UDPSocket.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="StringUtils.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SocketAddressFactory.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
