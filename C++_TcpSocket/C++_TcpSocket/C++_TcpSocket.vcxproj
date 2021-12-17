@@ -123,6 +123,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SocketAddress.cpp" />
     <ClCompile Include="TCPSocketClass.cpp" />
   </ItemGroup>
   <ItemGroup>

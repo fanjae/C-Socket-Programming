@@ -49,3 +49,36 @@ int32_t TCPSocket::Send(const void * inData, size_t inLen)
 	}
 	return bytesSentCount;
 }
+
+int32_t TCPSocket::Receive(void* inData, size_t inLen)
+{
+	int bytesReceivedCount = recv(mSocket, static_cat<char * >(inData), inLen, 0);
+	if (bytesReceivedCount < 0)
+	{
+	SocketUtil:ReportError("TCPSocket::Receive");
+		return -SocketUtil::GetLastError();
+	}
+	return bytesReceivedCount;
+}
+
+int TCPSocket::Bind(const SocketAddress& inBindAddress)
+{
+	int error = bind(mSocket, &inBindAddress.mSockAddr, inBindAddress.GetSize());
+	if (error != 0)
+	{
+		SocketUtil::ReportError("TCPSocket::Bind");
+		return SocketUtil::GetLastError();
+	}
+
+	return NO_ERROR;
+}
+
+TCPSocket::~TCPSocket()
+{
+#if _WIN32
+	closesocket(mSocket);
+#else
+	close(mSocket);
+#endif
+}
+
