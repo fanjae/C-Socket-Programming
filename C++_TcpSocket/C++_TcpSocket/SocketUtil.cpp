@@ -75,4 +75,23 @@ TCPSocketPtr SocketUtil::CreateTCPSocket(SocketAddressFamily inFamily)
 	}
 }
 
+fd_set* SocketUtil::FillSetFromVector(fd_set& outSet, const vector<TCPSocketPtr> * inSockets, int& ioNaxNfds)
+{
+	if (inSockets)
+	{
+		FD_ZERO(&outSet);
+		for (const TCPSocketPtr& Socket : *inSockets)
+		{
+			FD_SET(socket->mSocket, &outSet);
+#if !_WIN32
+			ioNaxNfds = std::max(ioNaxNfds, socket->mSocket);
+#endif
+		}
+		return &outSet;
+	}
+	else
+	{
+		return nullptr;
+	}
+}
 
