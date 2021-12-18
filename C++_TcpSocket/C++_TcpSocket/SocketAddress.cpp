@@ -1,37 +1,13 @@
 #include "RoboCatShared.h"
 
-
-bool SocketUtil::StaticInit()
+string SocketAddress::ToString() const
 {
 #if _WIN32
-	WSADATA wsaData;
-	int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (iResult != NO_ERROR)
-	{
-		ReportError("Starting Up");
-		return false;
-	}
-#endif
-	return true;
-}
-
-void SocketUtil::CleanUp()
-{
-#if _WIN32
-	WASCleanup();
-#endif
-}
-
-void SocketUtil::ReportError(const char* inOperationDesc)
-{
-#if _WIN32
-	LPVOID lpMsgBuf;
-	DWORD errorNum = GetLastError();
-
-	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, errorNum, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, NULL);
-
-	LOG("Error %s: %d- %s", inOperationDesc, errorNum, lpMsgBuf);
+	const sockaddr_in* s = GetAsSockAddrIn();
+	char destinationBuffer[128];
+	InetNtop(s->sin_family, const_char<in_addr *>(&s->sin_addr), destinationBuffer, sizeof(destinationBuffer));
+	return StringUtils::Sprintf("%s:%d", destinationBuffer, ntohs(s->sin_port));
 #else
-	LOG("Error : %hs", inOperationDesc);
+	return string("not implemented on mac for now");
 #endif
 }
