@@ -1,5 +1,3 @@
-#include "SharedHeader.h"
-
 class TCPSocket
 {
 public:
